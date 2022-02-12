@@ -1,4 +1,5 @@
 # General imports
+from statistics import mean
 import sklearn
 from sklearn import model_selection
 from sklearn.ensemble import RandomForestClassifier
@@ -89,7 +90,8 @@ Simple spectral analysis using max value of FFT
 params: frequency domain data, range and labels for each value, range of frequency to inspect
 output: highest band
 """
-def spectral_analysis(fft, value, value_labels, range=(10, 31)):
+def spectral_analysis(fft, range=(12, 31)):
+    # value, value_labels, 
     # value = [(10, 14), (15, 19), (20, 24), (25, 29)]
     # value_label = [12, 17, 22, 27]
     freq = range[0]+np.argmax(fft[range[0]:range[1]])
@@ -98,3 +100,49 @@ def spectral_analysis(fft, value, value_labels, range=(10, 31)):
     #     if freq >= b[0] and freq <= b[1]:
     #         freq = value_labels[i]
     return freq
+
+
+def spectral_analysis_relative_thresholding(fft, std, range=(12, 31)):
+    mean_power = np.mean(fft[range[0]:range[1]])
+    # std_power = np.std(fft[range[0]:range[1]])
+
+    max_power = np.max(fft[range[0]:range[1]])
+    freq = range[0]+np.argmax(fft[range[0]:range[1]])
+
+    # remove the one above and below max freq to "unscew" mean
+    fft_2 = np.concatenate((fft[range[0]:int(freq-1)], fft[int(freq+2):range[1]]))
+    mean_power_2 = np.mean(fft_2)
+    std_power = np.std(fft_2)
+
+    if max_power >= (mean_power_2 + std * std_power):
+        return freq
+    else:
+        return -1
+
+def spectral_analysis_close_thresholding(fft, std, range=(12, 31)):
+    mean_power = np.mean(fft[range[0]:range[1]])
+    # std_power = np.std(fft[range[0]:range[1]])
+
+    max_power = np.max(fft[range[0]:range[1]])
+    freq = range[0]+np.argmax(fft[range[0]:range[1]])
+
+    mean_power_2 = np.mean(fft[freq-3:freq+4])
+    std_power = np.std(fft[freq-5:freq+7])
+
+    if max_power >= (mean_power_2 + std * std_power):
+        return freq
+    else:
+        return -1
+
+def spectral_analysis_percentage_thresholding(fft, percentage, range=(12, 31)):
+
+    max_power = np.max(fft[range[0]:range[1]])
+    freq = range[0]+np.argmax(fft[range[0]:range[1]])
+
+    if max_power >= percentage * fft[freq-2] and max_power >= percentage * fft[freq+2]:
+        return freq
+    else:
+        return -1
+
+
+

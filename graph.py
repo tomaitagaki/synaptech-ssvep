@@ -6,7 +6,7 @@ import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowError
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
 # File functions
-from processing import standard_filter_timeseries, apply_bandpass
+from processing import standard_filter_timeseries, apply_bandpass, apply_highpass
 from hardware_interfacing import InputSource, HeadSet, record
 
 # Graph_Timeseries Class
@@ -99,7 +99,9 @@ class Graph_FFT:
         data = self.board_shim.get_current_board_data(self.num_points) # 8 ecg channels, each num pts long
          # filtering
         standard_filter_timeseries(data, self.sampling_rate)
-        apply_bandpass(data, self.sampling_rate, order=4, range=(8, 32))
+        # apply_bandpass(data, self.sampling_rate, order=4, range=(8, 32))
+        apply_highpass(data, self.sampling_rate, cutoff=12)
+
 
         for count, channel in enumerate(self.exg_channels):
             # plot timeseries

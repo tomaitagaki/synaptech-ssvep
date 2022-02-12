@@ -22,9 +22,14 @@ def standard_filter_timeseries(timeseries_data, sampling_rate):
 # applies bandpass for given range to "amplify" frequencies we care about 
 # params: multi-channel timeseries data, sampling rate, and optional range
 # output: applies bandpass to timeseries data (same dimensions)
-def apply_bandpass(timeseries_data, sampling_rate, order=2, range=(10, 40)):
+def apply_bandpass(timeseries_data, sampling_rate, order=4, range=(10, 40)):
     for ch, ch_data in enumerate(timeseries_data):
         DataFilter.perform_bandpass(ch_data, sampling_rate, range[0], range[1], order,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+
+def apply_highpass(timeseries_data, sampling_rate, order=4, cutoff=10):
+    for ch, ch_data in enumerate(timeseries_data):
+        DataFilter.perform_highpass(ch_data, sampling_rate, cutoff, order,
                                     FilterTypes.BUTTERWORTH.value, 0)
 
 """

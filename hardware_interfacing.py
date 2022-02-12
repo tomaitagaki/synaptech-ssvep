@@ -26,8 +26,8 @@ class InputSource:
     """
     Initializes the users CYTON BOARD
     """
-    def init_board(self):
-        self.board = BoardShim(0, self.params)
+    def init_board(self, board_id):
+        self.board = BoardShim(board_id, self.params)
 
     """
     Starts streaming from the users board
@@ -51,6 +51,7 @@ class HeadSet(InputSource):
         self.params.serial_port = serial_port
         self.filename = filename
         self.board_id = 0
+        self.init_board(self.board_id)
 
 # File input source (streaming capability)
 class File(InputSource):
