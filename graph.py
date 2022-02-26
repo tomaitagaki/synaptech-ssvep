@@ -6,7 +6,7 @@ import brainflow
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowError
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations, WindowFunctions, DetrendOperations
 # File functions
-from processing import standard_filter_timeseries, apply_bandpass, apply_highpass
+from processing import standard_filter_timeseries, apply_bandpass, apply_highpass, apply_hanning
 from hardware_interfacing import InputSource, HeadSet, record
 
 # Graph_Timeseries Class
@@ -51,10 +51,11 @@ class Graph_Timeseries:
     def update(self):
         data = self.board_shim.get_current_board_data(self.num_points)
         # filtering
+        apply_hanning(data)
         standard_filter_timeseries(data, self.sampling_rate)
         for count, channel in enumerate(self.exg_channels):
             # plot timeseries
-            self.plots[count].setYRange(self.allrange[0], self.allrange[1])
+            # self.plots[count].setYRange(self.allrange[0], self.allrange[1])
             self.curves[count].setData(data[channel].tolist())
         self.app.processEvents()
 
@@ -98,6 +99,7 @@ class Graph_FFT:
     def updateFFT(self):
         data = self.board_shim.get_current_board_data(self.num_points) # 8 ecg channels, each num pts long
          # filtering
+        apply_hanning(data)
         standard_filter_timeseries(data, self.sampling_rate)
         # apply_bandpass(data, self.sampling_rate, order=4, range=(8, 32))
         apply_highpass(data, self.sampling_rate, cutoff=12)
@@ -108,7 +110,7 @@ class Graph_FFT:
             nfft = DataFilter.get_nearest_power_of_two(self.sampling_rate)
             psd = DataFilter.get_psd_welch(data[channel], nfft, nfft // 2, self.sampling_rate,
                                    WindowFunctions.BLACKMAN_HARRIS.value)
-            self.curves[count].setData(psd[0][:61]) # cut frequencies at 60Hz 
+            self.curves[count].setData(psd[0][:43]) # cut frequencies at 60Hz 
         self.app.processEvents()
 
 """

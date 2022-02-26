@@ -26,6 +26,7 @@ def main():
     sec = 3
     samp_rate = BoardShim.get_sampling_rate(input_source.board_id)
 
+    # must wait until you hav enough samples to go through this loop
     while (True):
         # get the last sec * samp_rate samples of data
         data = input_source.board.get_current_board_data(sec * samp_rate)

@@ -1,5 +1,6 @@
 # Brainflow
 from brainflow.data_filter import DataFilter, FilterTypes, WindowFunctions, DetrendOperations
+import numpy as np
 
 """
 Applies "standard" filters to raw timeseries (as deemed by BrainFlow)
@@ -31,6 +32,11 @@ def apply_highpass(timeseries_data, sampling_rate, order=4, cutoff=10):
     for ch, ch_data in enumerate(timeseries_data):
         DataFilter.perform_highpass(ch_data, sampling_rate, cutoff, order,
                                     FilterTypes.BUTTERWORTH.value, 0)
+
+def apply_hanning(timeseries_data):
+    han = np.hanning(len(timeseries_data[1]))
+    for ch, ch_data in enumerate(timeseries_data):
+        ch_data *= han
 
 """
 Performs fast fourier transform on each channel
